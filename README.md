@@ -1,1 +1,54 @@
-# cloudflared-vps-lockdown
+# ❄️ Stay Frosty
+
+**Cloudflare tunnel setup + SSH hardening + full VPS lockdown.**
+
+So you got a shiny new VPS and you don't want to get pwned? 
+
+This script may be a good start. 
+
+This script:
+* Helps you configure Cloudflare tunnels to access your server via a URL like ssh.mydomain.com.
+* Works on Ubuntu and Debian
+* Is tested on Digital Ocean and Hetzner Cloud. It should work elsewhere, but follow the instructions in the script to verify.
+
+After Cloudflare SSH tunneling is set up, you're prompted to proceed with the following:
+* UFW to block all direct ports to the server.
+* Allowlists direct SSH access for IP's that you select, like your (home, office, etc)
+* Installs failtoban (prevents SSH brute force attacks)
+* Enables automatic security updates.
+* Tells you how to run nmap to scan your server for open ports.
+
+**Feedback welcomed in case I missed something.** 
+
+## Prerequisites
+
+* Free cloudflare account with a custom domain attached.
+* A new VPS instance (DigitalOcean Droplet, Hetzner Cloud, etc).
+* Cloudflared not installed.
+* You can log in from your local box `ssh root@<server-ip>` with SSH keys (not password).
+
+## Existing Setups
+The script should be safe to run on an existing setup without Cloudflared installed. It will prompt before closing down UFW ports and modifying SSH.
+
+## Running from Local
+
+Assumption:
+
+Install from a local box, allowing your home IP direct SSH access as a fallback. Fill in `SERVER_IP`: 
+```
+SERVER_IP=
+HOME_IP=$(curl -s -4 https://ifconfig.co || curl -s -6 https://ifconfig.co)
+
+rsync -avz ./stayfrosty.sh root@$SERVER_IP:/root/
+ssh -t root@$SERVER_IP "chmod +x /root/stayfrosty.sh && /root/stayfrosty.sh $HOME_IP"
+```
+
+You can leave home IP blank if you don't want fallback direct SSH access.
+
+## Running from Remote
+```
+chmod +x ./stayfrosty.sh
+./stayfrosty.sh
+```
+
+## 🧊 Stay frosty.
