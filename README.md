@@ -2,11 +2,11 @@
 
 **Cloudflare tunnel setup + SSH hardening + full VPS lockdown.**
 
-So you got a shiny new VPS and you don't want to get pwned? Want to install services and have them available to the internet?
+So you got a shiny new VPS and you don't want to get pwned? Want to install services and have them available to the internet? Don't want to expose your origin IP?
 
 This script may be a good start.
 
-One liner for Ubuntu / Debian:
+One liner for your remote Ubuntu / Debian:
 ```bash
 wget -O stayfrosty.sh https://raw.githubusercontent.com/TheRoccoB/cloudflared-vps-lockdown/master/stayfrosty.sh && chmod +x stayfrosty.sh && ./stayfrosty.sh
 ```
@@ -15,7 +15,7 @@ wget -O stayfrosty.sh https://raw.githubusercontent.com/TheRoccoB/cloudflared-vp
 
 * Free (or paid) cloudflare account with a custom domain attached.
 * A new VPS instance (DigitalOcean Droplet, Hetzner Cloud, etc).
-* Cloudflared not installed.
+* Cloudflared not installed yet on remote (ideally, uninstall, stop services first, if existing install).
 * You can log in from your local box `ssh root@<server-ip>` with SSH keys (not password).
 * Your local machine needs [cloudflared installed](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/).
 
@@ -35,9 +35,7 @@ After Cloudflare SSH tunneling is set up, you're prompted to proceed with the fo
 * Gives a login warning (MOTD) that when a reboot is required.
 * Tells you how to run nmap to scan your server for open ports.
 
-*Feedback welcomed in case I missed something.* 
-
-
+*Feedback welcomed in case I missed something.*
 
 ## Existing Setups
 The script should be safe to run on an existing setup without Cloudflared installed. It will prompt before closing down UFW ports and modifying SSH.
@@ -94,5 +92,14 @@ nmap -Pn -p- <server-ip>
 ## If you messed up
 
 The script is designed to be pretty resilient if you need to run it more than once.
+
+## Referral links
+If you haven't gotten a VPS yet, here are some referral links that help me too.
+
+* [Digital Ocean](https://m.do.co/c/294e41c860d1): $200 to use in 60d
+* [Hostinger](https://www.hostinger.com/referral?REFERRALCODE=9NVROCCOBJNO) Extra % off typical deals + free months.
+* Hetzner: Just sign up I don't have a code yet ;-).
+
+Note: I haven't tried on Hostinger yet.
 
 ## 🧊 Stay frosty.

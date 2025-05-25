@@ -208,7 +208,7 @@ echo "➡️  Hardening SSH config..."
 sed -i 's/^#\?PermitRootLogin .*/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config
 sed -i 's/^#\?PasswordAuthentication .*/PasswordAuthentication no/' /etc/ssh/sshd_config
 
-echo "📋 Current UFW status:"
+echo "📋 Current UFW status (Hint: ask an LLM to explain it to you):"
 ufw status verbose || echo "⚠️  UFW not active or failed to report status."
 
 # 🔍 Try to detect both IPv4 and IPv6
