@@ -14,7 +14,7 @@ This script:
 After Cloudflare SSH tunneling is set up, you're prompted to proceed with the following:
 * UFW to block all direct ports to the server.
 * Allowlists direct SSH access for IP's that you select, like your (home, office, etc)
-* Installs failtoban (prevents SSH brute force attacks)
+* Installs fail2ban (prevents SSH brute force attacks)
 * Enables automatic security updates.
 * Tells you how to run nmap to scan your server for open ports.
 
@@ -46,9 +46,24 @@ ssh -t root@$SERVER_IP "chmod +x /root/stayfrosty.sh && /root/stayfrosty.sh $HOM
 You can leave home IP blank if you don't want fallback direct SSH access.
 
 ## Running from Remote
+```bash
+curl -s https://raw.githubusercontent.com/TheRoccoB/cloudflared-vps-lockdown/main/stayfrosty.sh | bash
 ```
-chmod +x ./stayfrosty.sh
-./stayfrosty.sh
+
+## What next?
+
+Well, you can use this tunnel now for multiple services!
+
+Just run a service on localhost, select your tunnel, public hostnames => add a URL and port mapping.
+
+![Python server example](tunnel.png)
+
+Super simple python server:
 ```
+echo '<!doctype html><html><body><h1>Hello, World!</h1></body></html>' > index.html
+python3 -m http.server 9000
+```
+
+Typically you would run services with docker.
 
 ## 🧊 Stay frosty.
