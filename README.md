@@ -8,7 +8,7 @@ This script may be a good start.
 
 One liner for Ubuntu / Debian:
 ```bash
-wget -qO- https://raw.githubusercontent.com/TheRoccoB/cloudflared-vps-lockdown/master/stayfrosty.sh | bash
+wget -O stayfrosty.sh https://raw.githubusercontent.com/TheRoccoB/cloudflared-vps-lockdown/master/stayfrosty.sh && chmod +x stayfrosty.sh && ./stayfrosty.sh
 ```
 
 This script:
