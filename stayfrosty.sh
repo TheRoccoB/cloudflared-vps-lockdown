@@ -112,6 +112,7 @@ echo "📌 To make this permanent, add the following to your ~/.ssh/config:"
 echo ""
 echo "Host $SUBDOMAIN"
 echo "  HostName $BOX_IP"
+echo "  User root"
 echo "  ProxyCommand cloudflared access ssh --hostname $SUBDOMAIN.$DOMAIN"
 echo ""
 echo "Then you can just:"
@@ -128,9 +129,14 @@ read -p "🔒 Continue with system lockdown? (y/n): " CONTINUE_LOCKDOWN
 echo "🔐 Starting system lockdown..."
 
 # 🔓 Collect allowed SSH IPs
-echo ""
+echo "⚠️ As a backup you might want to still be able to SSH (without cloudflared) from your home or work IP."
 echo "➡️  Add IPs allowed direct SSH access into this machine (e.g. home, office, VPN)."
 echo "Press Enter without input to finish."
+echo ""
+echo "Use this command to get IP of your local machine. You can use -6 if it has not IPV4 IP."
+echo "  curl -s -4 https://ifconfig.co"
+echo ""
+
 ALLOWED_IPS=("$@")  # Load optional IPs from script args
 
 if [[ ${#ALLOWED_IPS[@]} -gt 0 ]]; then
@@ -138,8 +144,15 @@ if [[ ${#ALLOWED_IPS[@]} -gt 0 ]]; then
 fi
 
 # Prompt for more
+first_prompt=true
 while true; do
-  read -p "Allow direct SSH from IP (home/work)? (leave blank to finish): " ip
+  echo ""
+  if [ "$first_prompt" = true ]; then
+    read -p "Allow direct SSH from IP (home/work)? (add a single IP or leave blank to finish): " ip
+    first_prompt=false
+  else
+    read -p "Another IP to allow? (leave blank to finish): " ip
+  fi
   [[ -z "$ip" ]] && break
   ALLOWED_IPS+=("$ip")
 done
