@@ -13,7 +13,7 @@ wget -O stayfrosty.sh https://raw.githubusercontent.com/TheRoccoB/cloudflared-vp
 
 ## Prerequisites
 
-* Free cloudflare account with a custom domain attached.
+* Free (or paid) cloudflare account with a custom domain attached.
 * A new VPS instance (DigitalOcean Droplet, Hetzner Cloud, etc).
 * Cloudflared not installed.
 * You can log in from your local box `ssh root@<server-ip>` with SSH keys (not password).
