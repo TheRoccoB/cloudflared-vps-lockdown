@@ -47,7 +47,7 @@ You can leave home IP blank if you don't want fallback direct SSH access.
 
 ## Running from Remote
 ```bash
-curl -s https://raw.githubusercontent.com/TheRoccoB/cloudflared-vps-lockdown/main/stayfrosty.sh | bash
+wget -qO- https://raw.githubusercontent.com/TheRoccoB/cloudflared-vps-lockdown/master/stayfrosty.sh | bash
 ```
 
 ## What next?
