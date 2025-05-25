@@ -6,6 +6,7 @@ if ! [ -t 0 ]; then
   exit 1
 fi
 
+clear
 echo ""
 echo "❄️  StayFrosty: Cloudflare SSH tunnel setup and system lockdown"
 echo "This script assumes you're running it on a fresh Ubuntu or Debian server and a Cloudflare free account."
@@ -94,7 +95,9 @@ echo "🧪 Test it!:"
 echo ""
 echo "Install cloudflared on your local machine (https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/): "
 echo ""
-echo "ssh -o ProxyCommand='cloudflared access ssh --hostname $FULL_HOSTNAME' root@$BOX_IP"
+echo "Then run this to make sure you can login:"
+echo ""
+echo "  ssh -o ProxyCommand='cloudflared access ssh --hostname $FULL_HOSTNAME' root@$BOX_IP"
 echo ""
 echo "📌 To make this permanent, add the following to your ~/.ssh/config:"
 echo ""
@@ -272,13 +275,14 @@ if [[ "$RESTART" == "y" ]]; then
   echo ""
   echo "Restarting SSH in 3 seconds..."
   echo "✅ Lockdown complete"
-  echo "❄️ Stay frosty."
   echo ""
   echo "reminder: log back in with "
   echo ""
   echo "  cloudflared access ssh --hostname $FULL_HOSTNAME' root@$BOX_IP"
   echo ""
   echo "  # or if you set up your local SSH config (preferred)"
+  echo ""
+  echo "❄️ Stay frosty."
   echo "  ssh $SUBDOMAIN"
 
   sleep 3
