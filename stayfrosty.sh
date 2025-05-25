@@ -12,6 +12,8 @@ echo "This script assumes you're running it on a fresh Ubuntu or Debian server a
 echo ""
 echo "If it's an existing machine, it's safer to quit after Cloudflared is configured. Don't worry you'll be prompted before this script starts messing with UFW firewall."
 echo ""
+echo "⚠️⚠️⚠️ If this is an existing prod machine, take a snapshot in your VPS (digitalocean, etc) dashboard before running this script ⚠️⚠️⚠️"
+echo ""
 read -p '⚠️  Continue? (y/n): ' CONFIRM
 [[ $CONFIRM != "y" ]] && echo "🧊💩🧊💩🧊 Ice cold 🧊💩🧊💩🧊 Exiting." && exit 1
 echo ""
