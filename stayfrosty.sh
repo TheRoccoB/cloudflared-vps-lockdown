@@ -139,7 +139,6 @@ fi
 # Prompt for more
 first_prompt=true
 while true; do
-  echo ""
   if [ "$first_prompt" = true ]; then
     read -p "Allow direct SSH from IP (home/work)? (add a single IP or leave blank to finish): " ip
     first_prompt=false
@@ -201,7 +200,7 @@ echo "➡️  Enabling automatic security updates..."
 dpkg-reconfigure -f noninteractive unattended-upgrades
 
 echo ""
-read -p " Next we'll install fail2ban. This prevents multiple brute force login attempts (Enter to continue)"
+read -p " Next we'll install fail2ban. This prevents multiple brute force SSH login attempts (Enter to continue)"
 echo ""
 
 if ! dpkg -s fail2ban >/dev/null 2>&1; then
@@ -225,33 +224,6 @@ echo "➡️  Hardening SSH config..."
 sed -i 's/^#\?PermitRootLogin .*/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config
 sed -i 's/^#\?PasswordAuthentication .*/PasswordAuthentication no/' /etc/ssh/sshd_config
 
-
-
-
-echo ""
-echo "🧪 Security check: After SSH restart, scan this box from another machine to verify lockdown."
-
-if [[ -n "$IPV4" ]]; then
-  echo "🌍 Detected IPv4: $IPV4"
-  echo "  🔹 Fast scan (top 1000 ports): nmap -Pn $IPV4"
-  echo "       expectation: all ports should be closed except for 22 if you allowlisted your home IP"
-  echo "  🔹 Full scan (all ports, slow):      nmap -Pn -p- $IPV4"
-  echo "       expectation: all ports should be closed except for 22 if you allowlisted your home IP"
-  echo "  🔹 Test SSH password login (this should fail)"
-  echo "     ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no root@$IPV4"
-  echo ""
-fi
-
-if [[ -n "$IPV6" ]]; then
-  echo "🌍 Detected IPv6: $IPV6"
-  echo "  🔹 Fast scan (top 1000 ports): nmap -6 -Pn $IPV6"
-  echo "       expectation: all ports should be closed except for 22 if you allowlisted your home IP"
-  echo "  🔹 Full scan (all ports):      nmap -6 -Pn -p- $IPV6"
-  echo "       expectation: all ports should be closed except for 22 if you allowlisted your home IP"
-  echo "  🔹 Test SSH password login (this should fail):"
-  echo "     ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no root@[$IPV6]"
-  echo ""
-fi
 
 echo
 read -p "🔁 Restart SSH service now? You'll likely be logged out (y/n): " RESTART
