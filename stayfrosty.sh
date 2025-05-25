@@ -261,6 +261,8 @@ if [[ "$RESTART" == "y" ]]; then
     echo ""
   fi
   echo ""
+  echo "🔐 Check fail2ban status with: sudo fail2ban-client status. You should see an sshd jail."
+  echo ""
   echo "⚠️  Reminder: Docker can expose ports directly, bypassing UFW. Check nmap often."
   echo ""
   echo "⚠️  Reminder: Security is your responsibility! Run the Security check tests above!"
