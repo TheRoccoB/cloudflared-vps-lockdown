@@ -1,6 +1,7 @@
 # ❄️ Stay Frosty
 
 **Cloudflare tunnel setup + SSH hardening + full VPS lockdown.**
+# Still in Development... don't use yet! 
 
 So you got a shiny new VPS and you don't want to get pwned? Want to install services and have them available to the internet? Don't want to expose your origin IP?
 
@@ -79,6 +80,8 @@ You can also look into Cloudflare access to further tighten SSH'ing into your ac
 
 ## Gotcha's
 
+### Docker
+
 Docker likes to sometimes bypass UFW firewall with ip_tables or something. Run the following commands to check your server anytime you fire up a new service:
 
 ```
@@ -88,6 +91,12 @@ nmap -Pn <server-ip>
 # all ports (slow)
 nmap -Pn -p- <server-ip>
 ```
+
+### cloudflared login and API tokens
+This script calls `cloudflared login`. Under the hood, this creates a user API token that you can view at: 
+https://dash.cloudflare.com/profile/api-tokens. 
+
+Make sure to practice good hygene--if someone roots your box and finds your cloudflare cert.pem, they can potentially edit your DNS records many other nasty things! If you delete the box, also try to delete the token. 
 
 ## If you messed up
 

@@ -26,44 +26,6 @@ else
   echo "✅ cloudflared is already installed."
 fi
 
-echo "➡️  Checking origin certificate..."
-
-CERT_PATH="${HOME}/.cloudflared/cert.pem"
-if [ ! -f "$CERT_PATH" ]; then
-  echo "🔐  Logging into Cloudflare..."
-  cloudflared login
-  echo "✅ Login successful. Cert saved to: $CERT_PATH"
-else
-  echo "✅ Origin certificate already exists at $CERT_PATH"
-fi
-
-# Prompt loop to select tunnel
-while true; do
-  echo "📡 Available Cloudflare tunnels:"
-  cloudflared tunnel list || { echo "❌ Failed to list tunnels"; exit 1; }
-
-  echo ""
-  echo "🌐 Visit your Cloudflare Zero Trust dashboard to manage tunnels:"
-  echo "🔗 https://one.dash.cloudflare.com/"
-  echo "Then go to ➜ Networks ➜ Tunnels ➜ Create Tunnel"
-  echo ""
-  read -p "Enter the name of the tunnel you'd like to use (or type 'r' to refresh the list): " TUNNEL_NAME
-
-  if [[ "$TUNNEL_NAME" == "r" ]]; then
-    continue
-  fi
-
-  TUNNEL_ID=$(cloudflared tunnel list | awk -v name="$TUNNEL_NAME" '$2 == name { print $1 }')
-
-
-  if [[ -z "$TUNNEL_ID" ]]; then
-    echo "❌ Tunnel '$TUNNEL_NAME' not found. Try again."
-  else
-    echo "✅ Found tunnel ID: $TUNNEL_ID"
-    break
-  fi
-done
-
 # Check if a cloudflared systemd service is already installed
 if systemctl list-unit-files | grep -q '^cloudflared.service'; then
   echo "✅ cloudflared systemd service is already installed. Skipping service setup."
@@ -84,36 +46,57 @@ fi
 echo ""
 echo "🌐 Add a public hostname for SSH access (ex: myssh.domain.com pointing to ssh://localhost:22). Then this script will tell you how to setup Cloudflare."
 
-read -p "Subdomain (ex: myssh): " SUBDOMAIN
-read -p "Domain (ex: domain.com): " DOMAIN
-read -p "Service URL [leave blank for default: ssh://localhost:22]: " SSH_URL
-SSH_URL=${SSH_URL:-ssh://localhost:22}
-
 echo ""
 echo "➡️ Go to https://one.dash.cloudflare.com/"
 echo "Then: Networks → Tunnels → [Your Tunnel] → Add Public Hostname"
 echo ""
-echo "Use:"
-echo "  Subdomain:      $SUBDOMAIN"
-echo "  Domain:         $DOMAIN"
+echo "Example:"
+echo "  Subdomain:      myssh"
+echo "  Domain:         mydomain.com"
 echo "  Type:           SSH"
-echo "  URL:            $SSH_URL"
+echo "  URL:            http://localhost:22"
+echo ""
 
-read -p "⏎ Press Enter when done..."
+# Ask for subdomain and domain separately
+read -p "🔤 Enter the subdomain (e.g. mysshtunnel): " SUBDOMAIN
+read -p "🔤 Enter the domain (e.g. mydomain.com): " DOMAIN
 
-# Try to get public IP (IPv4 preferred)
-BOX_IP=$(curl -s -4 https://ifconfig.co || curl -s -6 https://ifconfig.co)
+# Strip whitespace just in case
+SUBDOMAIN=$(echo "$SUBDOMAIN" | xargs)
+DOMAIN=$(echo "$DOMAIN" | xargs)
+FULL_HOSTNAME="${SUBDOMAIN}.${DOMAIN}"
+
+echo "🔍 Detecting your box IPs"
+
+# 🔍 Try to detect both IPv4 and IPv6 with timeouts
+IPV4=$(curl -s -4 --connect-timeout 3 --max-time 5 https://ifconfig.co 2>/dev/null || echo "")
+if [[ -n "$IPV4" ]]; then
+  echo "🌍 Detected IPv4: $IPV4"
+else
+  echo "⚠️  No IPv4 detected."
+fi
+
+IPV6=$(curl -s -6 --connect-timeout 3 --max-time 5 https://ifconfig.co 2>/dev/null || echo "")
+
+if [[ -n "$IPV6" ]]; then
+  echo "🌍 Detected IPv6: $IPV6"
+else
+  echo "⚠️  No IPv6 detected."
+fi
+
+# Set BOX_IP to IPv4 if available, otherwise use IPv6, or empty if neither works
+BOX_IP=${IPV4:-$IPV6}
 
 echo ""
 echo "🧪 Test it:"
-echo "ssh -o ProxyCommand='cloudflared access ssh --hostname $SUBDOMAIN.$DOMAIN' root@$BOX_IP"
+echo "ssh -o ProxyCommand='cloudflared access ssh --hostname $FULL_HOSTNAME' root@$BOX_IP"
 echo ""
 echo "📌 To make this permanent, add the following to your ~/.ssh/config:"
 echo ""
 echo "Host $SUBDOMAIN"
 echo "  HostName $BOX_IP"
 echo "  User root"
-echo "  ProxyCommand cloudflared access ssh --hostname $SUBDOMAIN.$DOMAIN"
+echo "  ProxyCommand cloudflared access ssh --hostname $FULL_HOSTNAME"
 echo ""
 echo "Then you can just:"
 echo "  ssh $SUBDOMAIN"
@@ -156,6 +139,13 @@ while true; do
   [[ -z "$ip" ]] && break
   ALLOWED_IPS+=("$ip")
 done
+
+# Check if UFW is installed
+if ! command -v ufw &> /dev/null; then
+  echo "📦 Installing UFW..."
+  apt update && apt install -y ufw
+fi
+
 
 # 🔥 Apply UFW rules
 echo ""
@@ -204,6 +194,11 @@ echo -e '#!/bin/sh\nif [ -f /var/run/reboot-required ]; then echo \"⚠️  Rebo
 chmod +x /etc/update-motd.d/99-reboot-required
 
 # 🔐 SSH hardening
+
+# Backup SSH config
+echo "📑 Backing up SSH config..."
+cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak.$(date +%Y%m%d%H%M%S)
+
 echo "➡️  Hardening SSH config..."
 sed -i 's/^#\?PermitRootLogin .*/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config
 sed -i 's/^#\?PasswordAuthentication .*/PasswordAuthentication no/' /etc/ssh/sshd_config
@@ -211,9 +206,7 @@ sed -i 's/^#\?PasswordAuthentication .*/PasswordAuthentication no/' /etc/ssh/ssh
 echo "📋 Current UFW status (Hint: ask an LLM to explain it to you):"
 ufw status verbose || echo "⚠️  UFW not active or failed to report status."
 
-# 🔍 Try to detect both IPv4 and IPv6
-IPV4=$(curl -s -4 https://ifconfig.co)
-IPV6=$(curl -s -6 https://ifconfig.co)
+
 
 echo ""
 echo "🧪 Security check: After SSH restart, scan this box from another machine to verify lockdown."
@@ -240,8 +233,19 @@ if [[ -n "$IPV6" ]]; then
   echo ""
 fi
 
+
+
+
 read -p "🔁 Restart SSH service now? You'll likely be logged out (y/n): " RESTART
 if [[ "$RESTART" == "y" ]]; then
+
+  # Verify SSH config before restarting
+  if ! sshd -t; then
+    echo "❌❌❌ SSH config is invalid. Reverting changes..."
+    cp /etc/ssh/sshd_config.bak.* /etc/ssh/sshd_config
+    exit 1
+  fi
+
   echo "Restarting SSH in 3 seconds..."
   echo ""
   echo "⚠️  Reminder: Docker can expose ports directly, bypassing UFW. Check nmap often."
@@ -256,5 +260,5 @@ if [[ "$RESTART" == "y" ]]; then
   sleep 3
   systemctl restart ssh
 else
-  echo "⚠️  SSH config changes will take effect after manual restart."
+  echo "⚠️  SSH config changes will take effect after manual restart (systemctl restart ssh)."
 fi
