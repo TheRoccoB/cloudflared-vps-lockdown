@@ -31,7 +31,7 @@ echo "⚠️  During the upgrade, you may be prompted with a configuration scree
 echo "   If asked whether to keep the existing version, it's usually safest to choose:"
 echo "     → Keep the local version currently installed"
 echo ""
-
+echo "Note: This is totally optional, and the script will run fine without it."
 read -p "🔄 Proceed with update and upgrade? (y/n): " DO_UPGRADE
 
 if [[ "$DO_UPGRADE" =~ ^[Yy]$ ]]; then
