@@ -1,5 +1,7 @@
 # ❄️ Stay Frosty
 
+# HEY DON'T USE THIS YET, STILL IN DEVELOPMENT!
+
 **Cloudflare tunnel setup + SSH hardening + full VPS lockdown.**
 
 So you got a shiny new VPS and you don't want to get pwned? Want to install services and have them available to the internet?
