@@ -10,7 +10,7 @@ echo ""
 echo "❄️  StayFrosty: Cloudflare SSH tunnel setup and system lockdown"
 echo "This script assumes you're running it on a fresh Ubuntu or Debian server and a Cloudflare free account."
 echo ""
-echo "If it's an existing machine, it's safer to quit after Cloudflared configured. Don't worry you'll be prompted before this script starts messing with UFW firewall."
+echo "If it's an existing machine, it's safer to quit after Cloudflared is configured. Don't worry you'll be prompted before this script starts messing with UFW firewall."
 echo ""
 read -p '⚠️  Continue? (y/n): ' CONFIRM
 [[ $CONFIRM != "y" ]] && echo "🧊💩🧊💩🧊 Ice cold 🧊💩🧊💩🧊 Exiting." && exit 1
@@ -68,9 +68,6 @@ else
 fi
 
 echo ""
-echo "🌐 Add a public hostname for SSH access (ex: myssh.domain.com pointing to ssh://localhost:22). Then this script will tell you how to setup Cloudflare."
-
-echo ""
 echo "➡️ Go to https://one.dash.cloudflare.com/"
 echo "Then: Networks → Tunnels → [Your Tunnel] → Add Public Hostname"
 echo ""
@@ -91,7 +88,10 @@ DOMAIN=$(echo "$DOMAIN" | xargs)
 FULL_HOSTNAME="${SUBDOMAIN}.${DOMAIN}"
 
 echo ""
-echo "🧪 Test it:"
+echo "🧪 Test it!:"
+echo ""
+echo "Install cloudflared on your local machine (https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/): "
+echo ""
 echo "ssh -o ProxyCommand='cloudflared access ssh --hostname $FULL_HOSTNAME' root@$BOX_IP"
 echo ""
 echo "📌 To make this permanent, add the following to your ~/.ssh/config:"
@@ -103,8 +103,9 @@ echo "  ProxyCommand cloudflared access ssh --hostname $FULL_HOSTNAME"
 echo ""
 echo "Then you can just:"
 echo "  ssh $SUBDOMAIN"
-
-read -p "⚠️ Test the above before continuing with lockdown! (Enter to continue) "
+echo ""
+echo "⚠️⚠️⚠️ Test the above before continuing with lockdown! Make sure it logs you into your box! ⚠️⚠️⚠️"
+read -p " (Enter to continue)"
 
 echo ""
 echo "⚠️ Cloudflare tunnel setup complete. Steps below this modify UFW and SSH configs, and are only recommended if this is a new server."
@@ -115,11 +116,15 @@ read -p "🔒 Continue with system lockdown? (y/n): " CONTINUE_LOCKDOWN
 echo "🔐 Starting system lockdown..."
 
 # 🔓 Collect allowed SSH IPs
+echo ""
+echo "We'll now lock out down access to the machine with UFW."
+echo ""
 echo "⚠️ As a backup you might want to still be able to SSH (without cloudflared) from your home or work IP."
 echo "➡️  Add IPs allowed direct SSH access into this machine (e.g. home, office, VPN)."
 echo "Press Enter without input to finish."
 echo ""
 echo "Use this command to get IP of your local machine. You can use -6 if it has not IPV4 IP."
+echo ""
 echo "  curl -s -4 https://ifconfig.co"
 echo ""
 
@@ -174,6 +179,14 @@ echo "➡️  Allowing all loopback traffic..."
 ufw allow in on lo
 ufw allow out on lo
 
+echo ""
+echo "📋 Current UFW status (Hint: ask an LLM to explain it to you):"
+ufw status verbose || echo "⚠️  UFW not active or failed to report status."
+
+echo ""
+read -p " Next we'll install unattended-upgrades (Enter to continue)"
+echo ""
+
 # ✨ Harden system
 if ! dpkg -s unattended-upgrades apt-listchanges >/dev/null 2>&1; then
   echo "📦 Installing unattended-upgrades and apt-listchanges..."
@@ -184,6 +197,10 @@ fi
 
 echo "➡️  Enabling automatic security updates..."
 dpkg-reconfigure -f noninteractive unattended-upgrades
+
+echo ""
+read -p " Next we'll install fail2ban. This prevents multiple brute force login attempts (Enter to continue)"
+echo ""
 
 if ! dpkg -s fail2ban >/dev/null 2>&1; then
   echo "📦 Installing fail2ban..."
@@ -206,8 +223,6 @@ echo "➡️  Hardening SSH config..."
 sed -i 's/^#\?PermitRootLogin .*/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config
 sed -i 's/^#\?PasswordAuthentication .*/PasswordAuthentication no/' /etc/ssh/sshd_config
 
-echo "📋 Current UFW status (Hint: ask an LLM to explain it to you):"
-ufw status verbose || echo "⚠️  UFW not active or failed to report status."
 
 
 
@@ -236,9 +251,7 @@ if [[ -n "$IPV6" ]]; then
   echo ""
 fi
 
-
-
-
+echo
 read -p "🔁 Restart SSH service now? You'll likely be logged out (y/n): " RESTART
 if [[ "$RESTART" == "y" ]]; then
 
@@ -249,7 +262,30 @@ if [[ "$RESTART" == "y" ]]; then
     exit 1
   fi
 
-  echo "Restarting SSH in 3 seconds..."
+  echo ""
+  echo "🧪 Security check: After SSH restart, scan this box from another machine to verify lockdown."
+
+  if [[ -n "$IPV4" ]]; then
+    echo "🌍 Detected IPv4: $IPV4"
+    echo "  🔹 Fast scan (top 1000 ports): nmap -Pn $IPV4"
+    echo "       expectation: all ports should be closed except for 22 if you allowlisted your home IP"
+    echo "  🔹 Full scan (all ports, slow):      nmap -Pn -p- $IPV4"
+    echo "       expectation: all ports should be closed except for 22 if you allowlisted your home IP"
+    echo "  🔹 Test SSH password login (this should fail)"
+    echo "     ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no root@$IPV4"
+    echo ""
+  fi
+
+  if [[ -n "$IPV6" ]]; then
+    echo "🌍 Detected IPv6: $IPV6"
+    echo "  🔹 Fast scan (top 1000 ports): nmap -6 -Pn $IPV6"
+    echo "       expectation: all ports should be closed except for 22 if you allowlisted your home IP"
+    echo "  🔹 Full scan (all ports):      nmap -6 -Pn -p- $IPV6"
+    echo "       expectation: all ports should be closed except for 22 if you allowlisted your home IP"
+    echo "  🔹 Test SSH password login (this should fail):"
+    echo "     ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no root@[$IPV6]"
+    echo ""
+  fi
   echo ""
   echo "⚠️  Reminder: Docker can expose ports directly, bypassing UFW. Check nmap often."
   echo ""
@@ -257,8 +293,17 @@ if [[ "$RESTART" == "y" ]]; then
   echo "Don't rely solely on some guy from the internet who made this script. Do your own research!"
 
   echo ""
+  echo ""
+  echo "Restarting SSH in 3 seconds..."
   echo "✅ Lockdown complete"
   echo "❄️ Stay frosty."
+  echo ""
+  echo "reminder: log back in with "
+  echo ""
+  echo "  cloudflared access ssh --hostname $FULL_HOSTNAME' root@$BOX_IP"
+  echo ""
+  echo "  # or if you set up your local SSH config (preferred)"
+  echo "  ssh $SUBDOMAIN"
 
   sleep 3
   systemctl restart ssh
