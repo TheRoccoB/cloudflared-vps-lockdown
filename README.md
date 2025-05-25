@@ -14,7 +14,8 @@ wget -qO- https://raw.githubusercontent.com/TheRoccoB/cloudflared-vps-lockdown/m
 This script:
 * Helps you configure Cloudflare tunnels to access your server via a URL like ssh.mydomain.com.
 * Works on Ubuntu and Debian
-* Is tested on Digital Ocean and Hetzner Cloud. It should work elsewhere, but follow the instructions in the script to verify.
+* Is tested on Digital Ocean and Hetzner Cloud. 
+* It should work elsewhere, but make sure to check your security afterwards. The script gives you helpful nmap commands to run to do your own verification.
 
 After Cloudflare SSH tunneling is set up, you're prompted to proceed with the following:
 * UFW to block all direct ports to the server.
