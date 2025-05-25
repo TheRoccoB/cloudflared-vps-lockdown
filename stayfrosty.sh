@@ -7,6 +7,7 @@ if ! [ -t 0 ]; then
 fi
 
 clear
+
 echo ""
 echo "❄️  StayFrosty: Cloudflare SSH tunnel setup and system lockdown"
 echo "This script assumes you're running it on a fresh Ubuntu or Debian server and a Cloudflare free account."
@@ -17,6 +18,43 @@ echo "⚠️⚠️⚠️ If this is an existing prod machine, take a snapshot in
 echo ""
 read -p '⚠️  Continue? (y/n): ' CONFIRM
 [[ $CONFIRM != "y" ]] && echo "🧊💩🧊💩🧊 Ice cold 🧊💩🧊💩🧊 Exiting." && exit 1
+echo ""
+
+clear
+
+echo "📦 First lets update our packages. This step will run:"
+echo ""
+echo "   sudo apt update"
+echo "   sudo apt full-upgrade -y"
+echo ""
+echo "⚠️  During the upgrade, you may be prompted with a configuration screen for 'sshd'."
+echo "   If asked whether to keep the existing version, it's usually safest to choose:"
+echo "     → Keep the local version currently installed"
+echo ""
+
+read -p "🔄 Proceed with update and upgrade? (y/n): " DO_UPGRADE
+
+if [[ "$DO_UPGRADE" =~ ^[Yy]$ ]]; then
+    echo ""
+    echo "📥 Running apt update..."
+    sudo apt update
+
+    echo ""
+    echo "🚀 Running apt full-upgrade -y..."
+    sudo apt full-upgrade -y
+
+    echo ""
+    echo "🧼 If any packages mentioned needing a reboot (like the kernel or systemd)..."
+    read -p "🔁 Reboot now and re-run this script afterward? (y/n): " DO_REBOOT
+    if [[ "$DO_REBOOT" =~ ^[Yy]$ ]]; then
+        echo "🔄 Rebooting..."
+        sudo reboot
+        exit 0
+    fi
+else
+    echo "⏭️ Skipping upgrade step..."
+fi
+
 echo ""
 
 echo "🔍 Detecting your box IPs"
