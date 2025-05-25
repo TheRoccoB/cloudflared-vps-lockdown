@@ -2,9 +2,14 @@
 
 **Cloudflare tunnel setup + SSH hardening + full VPS lockdown.**
 
-So you got a shiny new VPS and you don't want to get pwned? 
+So you got a shiny new VPS and you don't want to get pwned? Want to install services and have them available to the internet?
 
-This script may be a good start. 
+This script may be a good start.
+
+On the Ubuntu or Debian server:
+```bash
+wget -qO- https://raw.githubusercontent.com/TheRoccoB/cloudflared-vps-lockdown/master/stayfrosty.sh | bash
+```
 
 This script:
 * Helps you configure Cloudflare tunnels to access your server via a URL like ssh.mydomain.com.
@@ -65,5 +70,7 @@ python3 -m http.server 9000
 ```
 
 Typically you would run services with docker.
+
+You can also look into Cloudflare access to further tighten SSH'ing into your account and to block access to admin pages.
 
 ## 🧊 Stay frosty.
