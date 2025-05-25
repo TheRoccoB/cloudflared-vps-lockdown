@@ -16,6 +16,27 @@ read -p '⚠️  Continue? (y/n): ' CONFIRM
 [[ $CONFIRM != "y" ]] && echo "🧊💩🧊💩🧊 Ice cold 🧊💩🧊💩🧊 Exiting." && exit 1
 echo ""
 
+echo "🔍 Detecting your box IPs"
+
+# 🔍 Try to detect both IPv4 and IPv6 with timeouts
+IPV4=$(curl -s -4 --connect-timeout 3 --max-time 5 https://ifconfig.co 2>/dev/null || echo "")
+if [[ -n "$IPV4" ]]; then
+  echo "🌍 Detected IPv4: $IPV4"
+else
+  echo "⚠️  No IPv4 detected."
+fi
+
+IPV6=$(curl -s -6 --connect-timeout 3 --max-time 5 https://ifconfig.co 2>/dev/null || echo "")
+
+if [[ -n "$IPV6" ]]; then
+  echo "🌍 Detected IPv6: $IPV6"
+else
+  echo "⚠️  No IPv6 detected."
+fi
+
+# Set BOX_IP to IPv4 if available, otherwise use IPv6, or empty if neither works
+BOX_IP=${IPV4:-$IPV6}
+
 echo "➡️  Checking cloudflared..."
 
 if ! command -v cloudflared &> /dev/null; then
@@ -30,6 +51,9 @@ fi
 if systemctl list-unit-files | grep -q '^cloudflared.service'; then
   echo "✅ cloudflared systemd service is already installed. Skipping service setup."
 else
+  echo ""
+  echo "➡️ Go to https://one.dash.cloudflare.com/"
+  echo "➡️ Then: Networks → Tunnels → Create a Tunnel → Cloudflared"
   echo ""
   echo "📎 After creating the tunnel you'll see a command 'sudo cloudflared service install <token>' paste the full command, not just the token."
   read -p "Paste the FULL command (not just the token) from Cloudflare (or leave blank to skip): " SERVICE_CMD
@@ -65,27 +89,6 @@ read -p "🔤 Enter the domain (e.g. mydomain.com): " DOMAIN
 SUBDOMAIN=$(echo "$SUBDOMAIN" | xargs)
 DOMAIN=$(echo "$DOMAIN" | xargs)
 FULL_HOSTNAME="${SUBDOMAIN}.${DOMAIN}"
-
-echo "🔍 Detecting your box IPs"
-
-# 🔍 Try to detect both IPv4 and IPv6 with timeouts
-IPV4=$(curl -s -4 --connect-timeout 3 --max-time 5 https://ifconfig.co 2>/dev/null || echo "")
-if [[ -n "$IPV4" ]]; then
-  echo "🌍 Detected IPv4: $IPV4"
-else
-  echo "⚠️  No IPv4 detected."
-fi
-
-IPV6=$(curl -s -6 --connect-timeout 3 --max-time 5 https://ifconfig.co 2>/dev/null || echo "")
-
-if [[ -n "$IPV6" ]]; then
-  echo "🌍 Detected IPv6: $IPV6"
-else
-  echo "⚠️  No IPv6 detected."
-fi
-
-# Set BOX_IP to IPv4 if available, otherwise use IPv6, or empty if neither works
-BOX_IP=${IPV4:-$IPV6}
 
 echo ""
 echo "🧪 Test it:"
