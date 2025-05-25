@@ -45,7 +45,9 @@ if [[ "$DO_UPGRADE" =~ ^[Yy]$ ]]; then
 
     echo ""
     echo "🧼 If any packages mentioned needing a reboot (like the kernel or systemd)..."
-    read -p "🔁 Reboot now and re-run this script afterward? (y/n): " DO_REBOOT
+    echo "   Note: Reboot can usually be deferred until your next login."
+    echo ""
+    read -p "🔁 Reboot now (y/n) [default is n]: " DO_REBOOT
     if [[ "$DO_REBOOT" =~ ^[Yy]$ ]]; then
         echo "🔄 Rebooting..."
         sudo reboot
@@ -120,7 +122,7 @@ echo "  URL:            http://localhost:22"
 echo ""
 
 # Ask for subdomain and domain separately
-read -p "🔤 Enter the subdomain (e.g. mysshtunnel): " SUBDOMAIN
+read -p "🔤 Enter the subdomain (e.g. myssh): " SUBDOMAIN
 read -p "🔤 Enter the domain (e.g. mydomain.com): " DOMAIN
 
 # Strip whitespace just in case
@@ -174,8 +176,10 @@ echo ""
 ALLOWED_IPS=("$@")  # Load optional IPs from script args
 
 if [[ ${#ALLOWED_IPS[@]} -gt 0 ]]; then
-  echo "✅ Currently allowed IPs from args: ${ALLOWED_IPS[*]}"
+  echo "✅ Currently allowed IPs from args: ${ALLOWED_IPS[*]} (already added, do not add below)"
 fi
+
+echo ""
 
 # Prompt for more
 first_prompt=true
@@ -318,10 +322,11 @@ if [[ "$RESTART" == "y" ]]; then
   echo ""
   echo "  cloudflared access ssh --hostname $FULL_HOSTNAME' root@$BOX_IP"
   echo ""
-  echo "  # or if you set up your local SSH config (preferred)"
+  echo "or if you set up your local SSH config (preferred)"
+  echo ""
+  echo "  ssh $SUBDOMAIN"
   echo ""
   echo "❄️ Stay frosty."
-  echo "  ssh $SUBDOMAIN"
 
   sleep 3
   systemctl restart ssh
