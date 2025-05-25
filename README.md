@@ -43,11 +43,16 @@ The script should be safe to run on an existing setup without Cloudflared instal
 
 ## Running from Local
 
-Install from a local box, allowing your home IP direct SSH access as a fallback. Fill in `SERVER_IP`: 
-```
-SERVER_IP=
-HOME_IP=$(curl -s -4 https://ifconfig.co || curl -s -6 https://ifconfig.co)
+Install from a local box, allowing your home IP direct SSH access as a fallback. Set `SERVER_IP`: 
 
+```
+SERVER_IP=<your_server_ip>
+```
+
+Then run:
+
+```
+HOME_IP=$(curl -s -4 https://ifconfig.co || curl -s -6 https://ifconfig.co)
 ssh -t root@$SERVER_IP "bash -c 'wget -O /root/stayfrosty.sh https://raw.githubusercontent.com/TheRoccoB/cloudflared-vps-lockdown/master/stayfrosty.sh && chmod +x /root/stayfrosty.sh && /root/stayfrosty.sh $HOME_IP'"
 ```
 
