@@ -6,7 +6,7 @@ So you got a shiny new VPS and you don't want to get pwned? Want to install serv
 
 This script may be a good start.
 
-On the Ubuntu or Debian server:
+One liner for Ubuntu / Debian:
 ```bash
 wget -qO- https://raw.githubusercontent.com/TheRoccoB/cloudflared-vps-lockdown/master/stayfrosty.sh | bash
 ```
@@ -52,8 +52,10 @@ ssh -t root@$SERVER_IP "chmod +x /root/stayfrosty.sh && /root/stayfrosty.sh $HOM
 You can leave home IP blank if you don't want fallback direct SSH access.
 
 ## Running from Remote
-```bash
-wget -qO- https://raw.githubusercontent.com/TheRoccoB/cloudflared-vps-lockdown/master/stayfrosty.sh | bash
+```
+wget -O stayfrosty.sh https://raw.githubusercontent.com/TheRoccoB/cloudflared-vps-lockdown/master/stayfrosty.sh
+chmod +x stayfrosty.sh
+./stayfrosty.sh
 ```
 
 ## What next?
@@ -70,8 +72,20 @@ echo '<!doctype html><html><body><h1>Hello, World!</h1></body></html>' > index.h
 python3 -m http.server 9000
 ```
 
-Typically you would run services with docker.
+Typically, you would run services with docker.
 
 You can also look into Cloudflare access to further tighten SSH'ing into your account and to block access to admin pages.
+
+## Gotcha's
+
+Docker likes to sometimes bypass UFW firewall with ip_tables or something. Run the following commands to check your server anytime you fire up a new service:
+
+```
+# top 1000 ports
+nmap -Pn <server-ip> 
+
+# all ports (slow)
+nmap -Pn -p- <server-ip>
+```
 
 ## 🧊 Stay frosty.

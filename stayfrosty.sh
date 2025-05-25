@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if ! [ -t 0 ]; then
+  echo "❌ This script must be run from an interactive terminal."
+  echo "👉 SSH into the machine and run it manually."
+  exit 1
+fi
+
 echo ""
 echo "❄️  StayFrosty: Cloudflare SSH tunnel setup and system lockdown"
 echo "This script assumes you're running it on a fresh Ubuntu or Debian server and a Cloudflare free account."
