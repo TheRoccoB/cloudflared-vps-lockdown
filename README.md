@@ -1,7 +1,5 @@
 # ❄️ Stay Frosty
 
-# HEY DON'T USE THIS YET, STILL IN DEVELOPMENT!
-
 **Cloudflare tunnel setup + SSH hardening + full VPS lockdown.**
 
 So you got a shiny new VPS and you don't want to get pwned? Want to install services and have them available to the internet?
@@ -45,8 +43,6 @@ After Cloudflare SSH tunneling is set up, you're prompted to proceed with the fo
 The script should be safe to run on an existing setup without Cloudflared installed. It will prompt before closing down UFW ports and modifying SSH.
 
 ## Running from Local
-
-Assumption:
 
 Install from a local box, allowing your home IP direct SSH access as a fallback. Fill in `SERVER_IP`: 
 ```
