@@ -50,11 +50,10 @@ Assumption:
 
 Install from a local box, allowing your home IP direct SSH access as a fallback. Fill in `SERVER_IP`: 
 ```
-SERVER_IP=<your-server-ip>
+SERVER_IP=
 HOME_IP=$(curl -s -4 https://ifconfig.co || curl -s -6 https://ifconfig.co)
 
-rsync -avz ./stayfrosty.sh root@$SERVER_IP:/root/
-ssh -t root@$SERVER_IP "chmod +x /root/stayfrosty.sh && /root/stayfrosty.sh $HOME_IP"
+ssh -t root@$SERVER_IP "bash -c 'wget -O /root/stayfrosty.sh https://raw.githubusercontent.com/TheRoccoB/cloudflared-vps-lockdown/master/stayfrosty.sh && chmod +x /root/stayfrosty.sh && /root/stayfrosty.sh $HOME_IP'"
 ```
 
 You can leave home IP blank if you don't want fallback direct SSH access.
