@@ -1,6 +1,6 @@
 # ❄️ Stay Frosty
 
-**Cloudflare tunnel setup + SSH hardening + full VPS lockdown.**
+**Cloudflare tunnel setup + SSH hardening + full VPS lockdown + Bonus Coolify Setup**
 # Still in Development... don't use yet! 
 
 So you got a shiny new VPS and you don't want to get pwned? Want to install services and have them available to the internet? Don't want to expose your origin IP?
@@ -12,6 +12,13 @@ One liner for your remote Ubuntu / Debian:
 wget -O stayfrosty.sh https://raw.githubusercontent.com/TheRoccoB/cloudflared-vps-lockdown/master/stayfrosty.sh && chmod +x stayfrosty.sh && ./stayfrosty.sh
 ```
 
+After completing this wizard, the script will ask you if you want to create a secure Coolify setup under Cloudflared.
+* This is totally optional, and the first script assumes nothing about Coolify. Once you have your tunnel set up, you can run:
+```bash
+wget -O stayfrosty_coolify.sh https://raw.githubusercontent.com/TheRoccoB/cloudflared-vps-lockdown/master/stayfrosty_coolify.sh && chmod +x stayfrosty_coolify.sh && ./stayfrosty_coolify.sh
+```
+This will likely work, even if you didn't do the first step, but I highly recommend hardening your fresh VPS first.
+
 ## Prerequisites
 
 * Free (or paid) cloudflare account with a custom domain attached.
@@ -21,7 +28,7 @@ wget -O stayfrosty.sh https://raw.githubusercontent.com/TheRoccoB/cloudflared-vp
 * Your local machine needs [cloudflared installed](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/).
 
 ## What it does
-This script:
+The main script, stayfrosty.sh:
 * Helps you configure Cloudflare tunnels to access your server via a URL like ssh.mydomain.com.
 * Enables exposure of additional access to services (docker, etc) to the internet while still hiding your origin IP.
 * Works on Ubuntu and Debian
@@ -91,21 +98,15 @@ Docker likes to sometimes bypass UFW firewall with ip_tables or something. Run t
 
 ```
 # top 1000 ports
-nmap -Pn <server-ip> 
+nmap -Pn -T4 <server-ip> 
 
 # all ports (slow)
-nmap -Pn -p- <server-ip>
+nmap -Pn -p- -T4 <server-ip>
 ```
-
-### cloudflared login and API tokens
-This script calls `cloudflared login`. Under the hood, this creates a user API token that you can view at: 
-https://dash.cloudflare.com/profile/api-tokens. 
-
-Make sure to practice good hygene--if someone roots your box and finds your cloudflare cert.pem, they can potentially edit your DNS records many other nasty things! If you delete the box, also try to delete the token. 
 
 ## If you messed up
 
-The script is designed to be pretty resilient if you need to run it more than once.
+These scripts are designed to be pretty resilient if you need to run them more than once.
 
 ## Referral links
 If you haven't gotten a VPS yet, here are some referral links that help me too.
