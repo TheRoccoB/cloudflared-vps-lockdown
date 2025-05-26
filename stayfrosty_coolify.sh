@@ -83,9 +83,31 @@ else
     echo "🚫 Rules not applied. Remember to apply them later if needed."
 fi
 
-# 🌍 Get public IP
-# todo handle v6 if there's no v4. Also set timeouts so that the script doesn't fail
-PUBLIC_IP=$(curl -s -4 ifconfig.me)
+get_public_ip() {
+  # Try IPv4 first with a 5-second timeout
+  local ipv4=$(curl -s -4 --connect-timeout 2 --max-time 5 ifconfig.me 2>/dev/null)
+
+  # If IPv4 fails, try IPv6
+  if [[ -z "$ipv4" ]]; then
+    echo "ℹ️ IPv4 detection failed, trying IPv6..."
+    local ipv6=$(curl -s -6 --connect-timeout 2 --max-time 5 ifconfig.me 2>/dev/null)
+
+    if [[ -z "$ipv6" ]]; then
+      echo "⚠️ Could not detect public IP address. Using 'localhost' instead."
+      echo "localhost"
+    else
+      echo "$ipv6"
+    fi
+  else
+    echo "$ipv4"
+  fi
+}
+
+echo ""
+echo "🖥️  Getting public IP..."
+# Get the public IP with fallback and timeout protection
+PUBLIC_IP=$(get_public_ip)
+echo ""
 
 echo ""
 echo "🖥️  Once Coolify finishes installing, visit the dashboard at:"
