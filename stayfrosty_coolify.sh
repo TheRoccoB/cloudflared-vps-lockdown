@@ -11,7 +11,7 @@ echo "🔍 Checking if cloudflared tunnel is running..."
 if pgrep -f "cloudflared.*tunnel" > /dev/null; then
   echo "✅ Cloudflared tunnel appears to be running."
 else
-  echo "❌ Cloudflared tunnel does not seem to be running. Please start it and try again."
+  echo "❌ Cloudflared tunnel does not seem to be running. Please run stayfrosty.sh first."
   exit 1
 fi
 

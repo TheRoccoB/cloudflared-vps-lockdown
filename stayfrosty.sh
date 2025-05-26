@@ -344,6 +344,9 @@ if [[ "$RESTART" == "y" ]]; then
   echo "  ssh $SUBDOMAIN"
   echo ""
   echo "Coolify is an amazing way to manage resources like Docker on your server."
+  echo "To install it with this Cloudflared configuration, run this on your remote:"
+  echo ""
+  echo "wget -O stayfrosty_coolify.sh https://raw.githubusercontent.com/TheRoccoB/cloudflared-vps-lockdown/master/stayfrosty_coolify.sh && chmod +x stayfrosty_coolify.sh && ./stayfrosty_coolify.sh"
   echo ""
   echo "❄️ Stay frosty."
 
