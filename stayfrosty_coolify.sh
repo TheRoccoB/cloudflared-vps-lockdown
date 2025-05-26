@@ -58,6 +58,7 @@ printf '   %s\n' "${RULES[@]}"
 echo ""
 
 # 🔐 Ask user if they want to apply the rules now
+echo "These are local routing rules that allow Coolify to function without exposing external ports."
 read -p "🛡️  Do you want to apply these rules now? (y/n): " APPLY_NOW
 if [[ "$APPLY_NOW" =~ ^[Yy]$ ]]; then
     for rule in "${RULES[@]}"; do
@@ -113,8 +114,9 @@ echo ""
 echo "🖥️  Once Coolify finishes installing, visit the dashboard at:"
 echo "   👉 http://$PUBLIC_IP:8000"
 echo ""
-read -p "⏳ Press Enter once you've visited the dashboard and created your user/pass and connected localhost..."
+read -p "⏳ Press Enter once you've visited the dashboard and created your user/pass and connected localhost (onboarding)..."
 
+echo ""
 echo "🤨 Did you notice that Docker (Coolify) broke through UFW and exposed port 8000 anyway?"
 echo ""
 echo "Before we clean up exposed ports, let's get Coolify serving via the Cloudflare tunnel, then we'll clean up port 8000."
@@ -139,7 +141,7 @@ echo "   👉 http://$PUBLIC_IP:8000/settings"
 echo ""
 echo "Set your instance name to http://coolify.yourdomain.com (match cloudflare)."
 echo ""
-echo "Cloudflare SSL settings should be 'full'"
+echo "Cloudflare SSL settings should be 'full' (I *think* this is default)"
 echo ""
 echo "⚠️IMPORTANT⚠️: Note that you need to use http and not https. Click save."
 echo "Why? Cloudflare and Coolify attempt to apply https causing an infinite redirect loop."
@@ -155,18 +157,28 @@ echo ""
 echo "🛠️  Disabling direct port 8000 exposure from Coolify..."
 
 CUSTOM_COMPOSE_FILE="/data/coolify/source/docker-compose.custom.yml"
-
-sudo tee "$CUSTOM_COMPOSE_FILE" > /dev/null <<EOF
+CUSTOM_COMPOSE_CONTENT=$(cat <<EOF
 services:
   coolify:
     ports: !reset []
+  soketi:   # blocks external access to ports 6001 and 6002
+    ports: !reset []
 EOF
+)
+
+sudo tee "$CUSTOM_COMPOSE_FILE" > /dev/null <<< "$CUSTOM_COMPOSE_CONTENT"
 
 echo "✅ Custom docker-compose custom created at $CUSTOM_COMPOSE_FILE "
-echo "This blocks ports 8000, 600 to the outside."
+echo "This blocks ports 8000, 6001, 6002 to the outside."
+echo ""
+echo "📄 File content:"
+echo "-------------------------------------------"
+echo "$CUSTOM_COMPOSE_CONTENT"
+echo "-------------------------------------------"
 echo ""
 
-TRAEFIK_COMPOSE_FILE="/data/coolify/proxy/docker-compose.override.yml" > /dev/null <<EOF
+TRAEFIK_COMPOSE_FILE="/data/coolify/proxy/docker-compose.override.yml"
+TRAEFIK_COMPOSE_CONTENT=$(cat <<EOF
 services:
   traefik:
     ports: !override
@@ -175,11 +187,18 @@ services:
       - "127.0.0.1:443:443/udp"
       - "127.0.0.1:8080:8080"
 EOF
+)
+
+sudo tee "$TRAEFIK_COMPOSE_FILE" > /dev/null <<< "$TRAEFIK_COMPOSE_CONTENT"
 
 echo "✅ Custom docker-compose override created at $TRAEFIK_COMPOSE_FILE"
-echo "This blocks ports 80, 443, 8080"
+echo "This blocks ports 80, 443, 8080 from external access"
 echo ""
-
+echo "📄 File content:"
+echo "-------------------------------------------"
+echo "$TRAEFIK_COMPOSE_CONTENT"
+echo "-------------------------------------------"
+echo ""
 
 read -p "📦 Next, we'll re-run the Coolify installer to lock out exposed ports. Press Enter to continue..."
 echo ""
@@ -189,7 +208,7 @@ echo "✅ Coolify installation complete."
 
 echo ""
 echo "✅ If all went well, Coolify should no longer be accessible at http://$PUBLIC_IP:8000"
-echo "🕵️  You can verify this with:"
+echo "🕵️  You can verify this (on a your home computer) with:"
 echo "   nmap -T4 -n $PUBLIC_IP"
 echo ""
 echo "❄️  Stay frosty."
