@@ -200,6 +200,17 @@ echo "$TRAEFIK_COMPOSE_CONTENT"
 echo "-------------------------------------------"
 echo ""
 
+echo "🔄 Restarting Coolify Traefik proxy..."
+
+pushd /data/coolify/proxy > /dev/null
+
+docker compose down
+docker compose up -d
+
+popd > /dev/null
+
+echo "✅ Coolify proxy restarted."
+
 read -p "📦 Next, we'll re-run the Coolify installer to lock out exposed ports. Press Enter to continue..."
 echo ""
 echo "📦 Re-running Coolify installer to apply port changes..."
@@ -209,6 +220,6 @@ echo "✅ Coolify installation complete."
 echo ""
 echo "✅ If all went well, Coolify should no longer be accessible at http://$PUBLIC_IP:8000"
 echo "🕵️  You can verify this (on a your home computer) with:"
-echo "   nmap -T4 -n $PUBLIC_IP"
+echo "   nmap -Pn -T4 -n $PUBLIC_IP"
 echo ""
 echo "❄️  Stay frosty."
