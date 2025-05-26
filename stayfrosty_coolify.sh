@@ -59,7 +59,7 @@ echo ""
 
 # 🔐 Ask user if they want to apply the rules now
 echo "These are local routing rules that allow Coolify to function without exposing external ports."
-read -p "🛡️  Do you want to apply these rules now? (y/n): " APPLY_NOW
+read -p "🛡️  Do you want to apply these rules now (Coolify will likely break without this)? (y/n): " APPLY_NOW
 if [[ "$APPLY_NOW" =~ ^[Yy]$ ]]; then
     for rule in "${RULES[@]}"; do
         echo "Applying: $rule"
@@ -111,7 +111,7 @@ PUBLIC_IP=$(get_public_ip)
 echo ""
 
 echo ""
-echo "🖥️  Once Coolify finishes installing, visit the dashboard at:"
+echo "🖥️  Visit the dashboard at:"
 echo "   👉 http://$PUBLIC_IP:8000"
 echo ""
 read -p "⏳ Press Enter once you've visited the dashboard and created your user/pass and connected localhost (onboarding)..."
@@ -150,7 +150,7 @@ echo "Also confirm that http://coolify.yourdomain.com redirects to https."
 echo "If it doesn't work right away wait a minute or two and try again."
 echo ""
 
-read -r "Enter to continue."
+read -p "Enter to continue."
 
 echo ""
 echo "If you want to block external traffic ports 80, 443, 8080 (recommended with cloudflare tunnel)"
