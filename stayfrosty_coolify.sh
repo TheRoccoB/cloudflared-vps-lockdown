@@ -121,7 +121,7 @@ echo "🤨 Did you notice that Docker (Coolify) broke through UFW and exposed po
 echo ""
 echo "Before we clean up exposed ports, let's get Coolify serving via the Cloudflare tunnel, then we'll clean up port 8000."
 echo ""
-echo "➡️  Now, go to your Cloudflare Tunnel dashboard:"
+echo "➡️  Go to your Cloudflare Tunnel dashboard:"
 echo "   https://one.dash.cloudflare.com/"
 echo "Then:"
 echo "  - Navigate to Networks → Tunnels → [Your Tunnel]"
@@ -134,24 +134,43 @@ echo ""
 echo "This will proxy your Coolify instance securely through Cloudflare."
 read -p "⏳ Press Enter when done..."
 echo ""
-echo "Complete onboarding at http://$PUBLIC_IP:8000, and connect localhost."
+echo "Complete onboarding at http://$PUBLIC_IP:8000, and connect localhost. Don't worry about adding a resource yet."
 echo ""
 echo "Then go to:"
 echo "   👉 http://$PUBLIC_IP:8000/settings"
 echo ""
 echo "Set your instance name to http://coolify.yourdomain.com (match cloudflare)."
 echo ""
-echo "Cloudflare SSL settings should be 'full' (I *think* this is default)"
-echo ""
-echo "⚠️IMPORTANT⚠️: Note that you need to use http and not https. Click save."
+echo "⚠️ IMPORTANT ⚠️: Note that you need to use http and not https. Click save."
 echo "Why? Cloudflare and Coolify attempt to apply https causing an infinite redirect loop."
+echo "Also note, Cloudflare SSL settings should be 'full' (I *think* this is default)"
 echo ""
 echo "Confirm that you can load coolify from https://coolify.yourdomain.com."
 echo "Also confirm that http://coolify.yourdomain.com redirects to https."
 echo "If it doesn't work right away wait a minute or two and try again."
 echo ""
 
-read -p "Press enter when complete."
+read -r "Enter to continue."
+
+echo ""
+echo "If you want to block external traffic ports 80, 443, 8080 (recommended with cloudflare tunnel)"
+echo "Go to Coolify => Server => Localhost => Proxy and change:"
+echo ""
+echo "    ports:"
+echo "      - '80:80'"
+echo "      - '443:443'"
+echo "      - '443:443/udp'"
+echo "      - '8080:8080'"
+echo "      "
+echo "      to "
+echo "      "
+echo "    ports:"
+echo "      - '127.0.0.1:80:80'        # HTTP"
+echo "      - '127.0.0.1:443:443'      # HTTPS"
+echo "      - '127.0.0.1:8080:8080'    # Traefik dashboard"
+echo "      - '127.0.0.1:443:443/udp'  # UDP"
+echo ""
+read -p "Save and restart proxy. Enter when done."
 
 echo ""
 echo "🛠️  Disabling direct port 8000 exposure from Coolify..."
@@ -177,41 +196,8 @@ echo "$CUSTOM_COMPOSE_CONTENT"
 echo "-------------------------------------------"
 echo ""
 
-TRAEFIK_COMPOSE_FILE="/data/coolify/proxy/docker-compose.override.yml"
-TRAEFIK_COMPOSE_CONTENT=$(cat <<EOF
-services:
-  traefik:
-    ports: !override
-      - "127.0.0.1:80:80"
-      - "127.0.0.1:443:443"
-      - "127.0.0.1:443:443/udp"
-      - "127.0.0.1:8080:8080"
-EOF
-)
 
-sudo tee "$TRAEFIK_COMPOSE_FILE" > /dev/null <<< "$TRAEFIK_COMPOSE_CONTENT"
-
-echo "✅ Custom docker-compose override created at $TRAEFIK_COMPOSE_FILE"
-echo "This blocks ports 80, 443, 8080 from external access"
-echo ""
-echo "📄 File content:"
-echo "-------------------------------------------"
-echo "$TRAEFIK_COMPOSE_CONTENT"
-echo "-------------------------------------------"
-echo ""
-
-echo "🔄 Restarting Coolify Traefik proxy..."
-
-pushd /data/coolify/proxy > /dev/null
-
-docker compose down
-docker compose up -d
-
-popd > /dev/null
-
-echo "✅ Coolify proxy restarted."
-
-read -p "📦 Next, we'll re-run the Coolify installer to lock out exposed ports. Press Enter to continue..."
+read -p "📦 Next, we'll re-run the Coolify installer to lock out exposed ports (8000, 6001, 6002). Press Enter to continue..."
 echo ""
 echo "📦 Re-running Coolify installer to apply port changes..."
 curl -fsSL https://cdn.coollabs.io/coolify/install.sh | sudo bash
@@ -219,7 +205,10 @@ echo "✅ Coolify installation complete."
 
 echo ""
 echo "✅ If all went well, Coolify should no longer be accessible at http://$PUBLIC_IP:8000"
-echo "🕵️  You can verify this (on a your home computer) with:"
+echo "🕵️  You can verify all ports are closed (on a your home computer) with:"
 echo "   nmap -Pn -T4 -n $PUBLIC_IP"
+echo ""
+echo "Note: If you allowed SSH access from your home PC, you'll see port 22 open."
+echo "Remember, docker can sometimes bypass UFW. Check nmap after installing new services."
 echo ""
 echo "❄️  Stay frosty."
