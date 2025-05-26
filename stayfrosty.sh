@@ -225,6 +225,23 @@ echo "➡️  Allowing all loopback traffic..."
 ufw allow in on lo
 ufw allow out on lo
 
+# 🛠 Extra: Allow SSH from loopback and server’s own public IP
+# this is needed for installing coolify.
+echo "➡️  Allowing SSH from 127.0.0.1 and ::1..."
+ufw allow from 127.0.0.1 to any port 22 proto tcp
+ufw allow from ::1 to any port 22 proto tcp
+
+if [[ -n "$IPV4" ]]; then
+  echo "➡️  Allowing SSH from $IPV4 (public IPv4)..."
+  ufw allow from "$IPV4" to any port 22 proto tcp
+fi
+
+if [[ -n "$IPV6" ]]; then
+  echo "➡️  Allowing SSH from $IPV6 (public IPv6)..."
+  ufw allow from "$IPV6" to any port 22 proto tcp
+fi
+
+
 echo ""
 echo "📋 Current UFW status (Hint: ask an LLM to explain it to you):"
 ufw status verbose || echo "⚠️  UFW not active or failed to report status."
@@ -325,6 +342,8 @@ if [[ "$RESTART" == "y" ]]; then
   echo "or if you set up your local SSH config (preferred)"
   echo ""
   echo "  ssh $SUBDOMAIN"
+  echo ""
+  echo "Coolify is an amazing way to manage resources like Docker on your server."
   echo ""
   echo "❄️ Stay frosty."
 
