@@ -117,8 +117,7 @@ echo ""
 echo "Example:"
 echo "  Subdomain:      myssh"
 echo "  Domain:         mydomain.com"
-echo "  Type:           SSH"
-echo "  URL:            http://localhost:22"
+echo "  URL:            SSH   ://   localhost:22"
 echo ""
 
 # Ask for subdomain and domain separately
@@ -288,7 +287,7 @@ sed -i 's/^#\?PasswordAuthentication .*/PasswordAuthentication no/' /etc/ssh/ssh
 
 
 echo
-read -p "🔁 Restart SSH service now? You'll likely be logged out (y/n): " RESTART
+read -p "🔁 Restart SSH service now? You'll possibly be logged out (y/n): " RESTART
 if [[ "$RESTART" == "y" ]]; then
 
   # Verify SSH config before restarting
@@ -347,6 +346,8 @@ if [[ "$RESTART" == "y" ]]; then
   echo "To install it with this Cloudflared configuration, run this on your remote:"
   echo ""
   echo "wget -O stayfrosty_coolify.sh https://raw.githubusercontent.com/TheRoccoB/cloudflared-vps-lockdown/master/stayfrosty_coolify.sh && chmod +x stayfrosty_coolify.sh && ./stayfrosty_coolify.sh"
+  echo ""
+  echo "I also recommend locking down your SSH tunnel with Cloudflare Access. See https://github.com/TheRoccoB/cloudflared-vps-lockdown/blob/master/CloudflareAccess.md"
   echo ""
   echo "❄️ Stay frosty."
 

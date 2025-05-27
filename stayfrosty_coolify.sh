@@ -59,8 +59,8 @@ echo ""
 
 # 🔐 Ask user if they want to apply the rules now
 echo "These are local routing rules that allow Coolify to function without exposing external ports."
-read -p "🛡️  Do you want to apply these rules now (Coolify will likely break without this)? (y/n): " APPLY_NOW
-if [[ "$APPLY_NOW" =~ ^[Yy]$ ]]; then
+read -p "🛡️  Do you want to apply these rules now (Coolify will likely break without this)? (y/n, default yes): " APPLY_NOW
+if [[ -z "$APPLY_NOW" || "$APPLY_NOW" =~ ^[Yy]$ ]]; then
     for rule in "${RULES[@]}"; do
         echo "Applying: $rule"
         eval "$rule"
@@ -134,9 +134,10 @@ echo ""
 echo "This will proxy your Coolify instance securely through Cloudflare."
 read -p "⏳ Press Enter when done..."
 echo ""
-echo "Complete onboarding at http://$PUBLIC_IP:8000, and connect localhost. Don't worry about adding a resource yet."
+echo "Complete onboarding at http://$PUBLIC_IP:8000, and connect to localhost in onboarding. Don't worry about adding a resource yet."
+read -p "Enter to continue."
 echo ""
-echo "Then go to:"
+echo "Next go to:"
 echo "   👉 http://$PUBLIC_IP:8000/settings"
 echo ""
 echo "Set your instance name to http://coolify.yourdomain.com (match cloudflare)."
@@ -144,6 +145,8 @@ echo ""
 echo "⚠️ IMPORTANT ⚠️: Note that you need to use http and not https. Click save."
 echo "Why? Cloudflare and Coolify attempt to apply https causing an infinite redirect loop."
 echo "Also note, Cloudflare SSL settings should be 'full' (I *think* this is default)"
+echo ""
+echo "Troubleshooting: https://github.com/TheRoccoB/cloudflared-vps-lockdown/blob/master/CoolifyTroubleshooting.md"
 echo ""
 echo "Confirm that you can load coolify from https://coolify.yourdomain.com."
 echo "Also confirm that http://coolify.yourdomain.com redirects to https."
@@ -211,5 +214,7 @@ echo ""
 echo "Note: If you allowed SSH access from your home PC, you'll see port 22 open."
 echo "Remember, docker can sometimes bypass UFW. Check nmap after installing new services."
 echo "Read up on 'Cloudflare Access' to fully block access to your coolify login page."
+echo
+echo "https://github.com/TheRoccoB/cloudflared-vps-lockdown/blob/master/CloudflareAccess.md"
 echo ""
 echo "❄️  Stay frosty."
