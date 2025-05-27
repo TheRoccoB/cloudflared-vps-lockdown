@@ -17,7 +17,10 @@ After completing this wizard, the script will ask you if you want to create a se
 ```bash
 wget -O stayfrosty_coolify.sh https://raw.githubusercontent.com/TheRoccoB/cloudflared-vps-lockdown/master/stayfrosty_coolify.sh && chmod +x stayfrosty_coolify.sh && ./stayfrosty_coolify.sh
 ```
-This will likely work, even if you didn't do the first step, but I highly recommend hardening your fresh VPS first.
+This will likely work even if you didn't do the first step, but I highly recommend hardening your fresh VPS first.
+
+After completing the wizards I highly recommend adding Cloudflare Access in front (especially cloudflared SSH access and any admin dashboards like Coolify). 
+* Here's a quick guide: [Cloudflare Access Guide](CloudflareAccess.md).
 
 ## Prerequisites
 
