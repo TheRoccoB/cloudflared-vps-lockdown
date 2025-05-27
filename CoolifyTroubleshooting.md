@@ -1,4 +1,4 @@
-# Stay Frosty: Coolify + Cloudflared troubleshooting
+# Stay Frosty: Coolify + Cloudflared domain troubleshooting
 
 If you ran the stayfrosty_coolify script and your custom domain is still not attaching, here are some things to check:
 
