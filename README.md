@@ -1,7 +1,6 @@
 # ❄️ Stay Frosty
 
 **Cloudflare tunnel setup + SSH hardening + full VPS lockdown + Bonus Coolify Setup**
-# Still in Development... don't use yet! 
 
 So you got a shiny new VPS and you don't want to get pwned? Want to install services and have them available to the internet? Don't want to expose your origin IP?
 
@@ -75,25 +74,10 @@ chmod +x stayfrosty.sh
 ./stayfrosty.sh
 ```
 
-## What next?
-
-Well, you can use this tunnel now for multiple services!
-
-Just run a service on localhost, select your tunnel, public hostnames => add a URL and port mapping.
-
-![Python server example](tunnel.png)
-
-Super simple python server:
-```
-echo '<!doctype html><html><body><h1>Hello, World!</h1></body></html>' > index.html
-python3 -m http.server 9000
-```
-
-Typically, you would run services with docker.
-
-You can also look into Cloudflare access to further tighten SSH'ing into your account and to block access to admin pages.
-
 ## Gotcha's
+
+### Coolify
+* Connecting a domain to your tunnel for your coolify admin panel can be quite tricky (stayfrosty_coolify.sh). Here's a [troubleshooting guide](CoolifyTroubleshooting.md).
 
 ### Docker
 
